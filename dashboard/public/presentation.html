@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>step-ca &bull; Automated Private PKI Architecture</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: rgba(26, 26, 30, 0.75);
+      --surface-card: rgba(18, 18, 22, 0.65);
+      --surface-border: rgba(255, 255, 255, 0.08);
+      --surface-highlight: rgba(255, 255, 255, 0.14);
+      --text-primary: #ffffff;
+      --text-secondary: #a1a1a6;
+      --text-tertiary: #6e6e73;
+      --apple-blue: #0a84ff;
+      --apple-green: #30d158;
+      --apple-red: #ff453a;
+      --apple-amber: #ffd60a;
+      --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+      --font-mono: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-system);
+      background-color: var(--bg);
+      color: var(--text-primary);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Ambient Spotlight Background */
+    #deck {
+      flex: 1;
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 18%, rgba(10, 132, 255, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
+    }
+
+    /* Apple-style Frosted Material Window */
+    .slide {
+      position: absolute;
+      width: 90%;
+      max-width: 1120px;
+      height: 84%;
+      max-height: 720px;
+      background: var(--surface);
+      backdrop-filter: blur(40px) saturate(190%);
+      -webkit-backdrop-filter: blur(40px) saturate(190%);
+      border: 1px solid var(--surface-border);
+      border-top: 1px solid var(--surface-highlight);
+      border-radius: 18px;
+      padding: 48px 56px;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .slide.active {
+      display: flex;
+      animation: springSettle 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes springSettle {
+      from { opacity: 0; transform: scale(0.985) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide.active { animation: none; opacity: 1; transform: none; }
+      .btn:active, .box:hover { transform: none !important; }
+    }
+
+    /* Apple Display Typography (WWDC 2020 Guidelines) */
+    h1 {
+      font-size: 2.6rem;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1.12;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    h2 {
+      font-size: 1.95rem;
+      font-weight: 700;
+      letter-spacing: -0.028em;
+      line-height: 1.2;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    p.lead {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 26px;
+      line-height: 1.45;
+      letter-spacing: -0.012em;
+      max-width: 78ch;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      flex: 1;
+      align-items: stretch;
+    }
+
+    /* Apple Surface Cards */
+    .box {
+      background: var(--surface-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--surface-border);
+      border-top: 1px solid var(--surface-highlight);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .box:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.6);
+    }
+
+    .box h2, .box h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: -0.018em;
+      margin-bottom: 12px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    ul.clean-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: #d1d1d6;
+    }
+
+    ul.clean-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    ul.clean-list li::before {
+      content: "—";
+      color: var(--apple-blue);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    /* Terminal & Code Block */
+    pre.term {
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: #ffffff;
+      overflow-x: auto;
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .cmd { color: var(--apple-blue); font-weight: 600; }
+    .param { color: #ffffff; }
+    .comment { color: var(--text-tertiary); font-style: normal; }
+
+    /* macOS Segmented Table */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      margin-top: 8px;
+    }
+
+    table.data-table th, table.data-table td {
+      padding: 13px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--surface-border);
+    }
+
+    table.data-table th {
+      color: var(--text-tertiary);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    /* Apple Floating Control Bar (Instant Pointer-Down Response) */
+    #nav {
+      height: 60px;
+      border-top: 1px solid var(--surface-border);
+      background: rgba(18, 18, 22, 0.85);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 36px;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      z-index: 10;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      padding: 7px 16px;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-size: 0.84rem;
+      font-weight: 500;
+      font-family: inherit;
+      transition: background 0.15s, transform 0.08s ease-out;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    /* Kill Latency: Respond on Pointer-Down (WWDC Fluid Interfaces Rule 1) */
+    .btn:active {
+      transform: scale(0.96);
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    /* Apple Status Capsule */
+    .indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--apple-green);
+      background: rgba(48, 209, 88, 0.12);
+      border: 1px solid rgba(48, 209, 88, 0.3);
+      padding: 4px 12px;
+      border-radius: 9999px;
+    }
+
+    .indicator-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--apple-green);
+      border-radius: 50%;
+    }
+
+    #notes {
+      display: none;
+      position: fixed;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 82%;
+      max-width: 900px;
+      background: rgba(28, 28, 32, 0.95);
+      backdrop-filter: blur(35px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 12px;
+      padding: 16px 24px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+      font-size: 0.92rem;
+      color: #f5f5f7;
+      line-height: 1.5;
+      z-index: 50;
+    }
+
+    #notes-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--apple-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="deck">
+
+    <!-- Slide 1: Introduction -->
+    <div class="slide active" data-notes="Opening Hook: Today, all public web traffic is encrypted thanks to Let's Encrypt. But inside private company networks—between microservices, internal tools, and developer machines—encryption has historically been painful and neglected. Today I am presenting step-ca, an automated private Certificate Authority.">
+      <h1>step-ca: Automated Private PKI</h1>
+      <h2>Enterprise Certificate Authority for DevOps & Zero-Trust</h2>
+      <p class="lead">Production-grade certificate issuance, continuous renewal, and identity-driven zero-trust for private infrastructure.</p>
+
+      <div class="grid-2">
+        <div class="box">
+          <h2>Core Mission</h2>
+          <p style="font-size: 0.96rem; line-height: 1.6; color: var(--text-secondary);">
+            To eliminate dangerous manual OpenSSL scripts and unmanaged multi-year certificates by deploying an online, automated Certificate Authority directly inside private networks.
+          </p>
+          <div style="margin-top: auto; padding-top: 16px;">
+            <span class="indicator"><span class="indicator-dot"></span> Live CA Server Running (:9000)</span>
+          </div>
+        </div>
+
+        <div class="box">
+          <h2>Presentation Agenda</h2>
+          <ul class="clean-list">
+            <li><strong>The Failure Mode:</strong> Why internal certificate management breaks</li>
+            <li><strong>System Architecture:</strong> How <code>step-ca</code> validates and signs credentials</li>
+            <li><strong>Passive Revocation:</strong> Replacing broken CRL/OCSP responders with 24h certs</li>
+            <li><strong>Live Verification:</strong> From CA initialization to real HTTPS in Node.js</li>
+            <li><strong>Operational Value:</strong> Zero-trust mTLS and identity-bound SSH access</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2: The Problem -->
+    <div class="slide" data-notes="Contrast public vs internal PKI. Public CAs like Let's Encrypt only work on public domains and refuse to sign localhost or private IPs. In response, teams generated unmanaged 5-year or 10-year certs that silently become ticking time bombs.">
+      <h2>The Fragility of Internal Encryption</h2>
+      <p class="lead">Why legacy enterprise PKI practices cause critical outages and security blindspots.</p>
+
+      <div class="grid-2">
+        <div class="box">
+          <h3 style="color: var(--apple-red);">Legacy Approaches</h3>
+          <ul class="clean-list">
+            <li><strong>The 5-Year Time Bomb:</strong> Teams issue long-lived certificates that are forgotten until they expire at 3 AM on a weekend, taking down entire pipelines.</li>
+            <li><strong>OpenSSL Complexity:</strong> Multi-step manual key generation and CSR signing with zero auditability or centralized revocation.</li>
+            <li><strong>Browser Warning Fatigue:</strong> Internal services display red certificate error screens; developers learn to ignore security boundaries.</li>
+            <li><strong>SSH Key Sprawl:</strong> Unrevoked public keys persist in <code>authorized_keys</code> files long after employees leave.</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h3 style="color: var(--apple-blue);">Why Public CAs Cannot Solve This</h3>
+          <ul class="clean-list">
+            <li><strong>No Private Network Scope:</strong> Let's Encrypt cannot validate private addresses (<code>localhost</code>, <code>10.0.0.x</code>, <code>db.internal</code>).</li>
+            <li><strong>Public Leakage:</strong> Public certificates are published to Certificate Transparency logs, exposing internal hostnames.</li>
+            <li><strong>External Dependency:</strong> Private infrastructure cannot depend on third-party internet uptime to sign internal certificates.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: The Solution -->
+    <div class="slide" data-notes="Introduce step-ca as an open-source, written-in-Go online CA. It acts as your internal passport authority, offering standard X.509 TLS, automated ACME, and SSH certificates.">
+      <h2>step-ca: Online Authority for DevOps</h2>
+      <p class="lead">A modular, fast, and automated security authority designed for machines and developers.</p>
+
+      <div class="grid-2">
+        <div class="box">
+          <h3>X.509 TLS Authority</h3>
+          <p style="font-size: 0.94rem; color: var(--text-secondary); margin-bottom: 8px;">
+            Signs TLS server and client certificates for web applications, microservices, gRPC channels, and databases (PostgreSQL, MySQL).
+          </p>
+          <ul class="clean-list">
+            <li>Modern algorithms: ECDSA (P-256), Ed25519, RSA</li>
+            <li>Dynamic lifetimes: 5 minutes to multiple years</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h3>RFC 8555 ACME Server</h3>
+          <p style="font-size: 0.94rem; color: var(--text-secondary); margin-bottom: 8px;">
+            Full implementation of the ACME standard used by Let's Encrypt.
+          </p>
+          <ul class="clean-list">
+            <li>Zero-touch integration with <strong>Certbot</strong>, <strong>Caddy</strong>, and <strong>Traefik</strong></li>
+            <li>Kubernetes native support via <strong>cert-manager</strong></li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h3>SSH Certificate Authority</h3>
+          <p style="font-size: 0.94rem; color: var(--text-secondary);">
+            Replaces static SSH keys. Issues ephemeral, signed SSH certificates tied directly to employee Single Sign-On (Google Workspace, Okta, Azure AD).
+          </p>
+        </div>
+
+        <div class="box">
+          <h3>Hardware Security & KMS</h3>
+          <p style="font-size: 0.94rem; color: var(--text-secondary);">
+            Protects private signing keys within Hardware Security Modules (PKCS#11, YubiKey, TPM 2.0) or Cloud KMS (AWS, GCP, Azure, HashiCorp Vault).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Architecture -->
+    <div class="slide" data-notes="Walk through this 4-tier pipeline: Clients request credentials -> Provisioners authenticate identity -> Policy engine enforces rules -> Signing core writes cryptographic signatures.">
+      <h2>Request Lifecycle & Identity Verification</h2>
+      <p class="lead">How requests transition from raw identity proofs into cryptographically signed credentials.</p>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Tier</th>
+            <th>Component</th>
+            <th>Operational Responsibility</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color: var(--apple-blue); font-weight: 600;">1. Client</td>
+            <td><code>step</code> CLI, Certbot, Microservice SDK</td>
+            <td>Requests certificate issuance, renewal, or revocation over HTTPS/mTLS.</td>
+          </tr>
+          <tr>
+            <td style="color: var(--apple-blue); font-weight: 600;">2. Provisioner</td>
+            <td>OIDC, ACME, JWK, AWS/GCP, SCEP, Webhook</td>
+            <td><strong>Authentication Gate:</strong> Validates calling identity (human SSO token, cloud instance metadata, or cryptographic JWK).</td>
+          </tr>
+          <tr>
+            <td style="color: var(--apple-green); font-weight: 600;">3. Policy Engine</td>
+            <td>X.509 Templates & Subject Rules</td>
+            <td>Enforces allowed Subject Alternative Names (SANs), extensions, key usages, and validity durations.</td>
+          </tr>
+          <tr>
+            <td style="color: var(--apple-amber); font-weight: 600;">4. Signing Core</td>
+            <td>CAS (SoftCAS, Vault, Cloud KMS)</td>
+            <td>Cryptographically signs the certificate using the Intermediate CA key and records serials in the local database.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Slide 5: Passive Revocation -->
+    <div class="slide" data-notes="This is the central security concept: Passive Revocation. Instead of asking browsers to download huge CRL files or query slow OCSP servers on every click, certificates are short-lived (24h). Compromised credentials expire automatically.">
+      <h2>Passive Revocation vs. Broken Revocation Lists</h2>
+      <p class="lead">Why 24-hour certificate lifetimes outperform legacy CRL and OCSP mechanisms.</p>
+
+      <div class="grid-2">
+        <div class="box">
+          <h3 style="color: var(--apple-red);">The Failure of CRL & OCSP</h3>
+          <ul class="clean-list">
+            <li><strong>Certificate Revocation Lists (CRLs):</strong> Bulky lists of revoked serial numbers downloaded periodically. High bandwidth overhead; rarely fresh.</li>
+            <li><strong>OCSP Responders:</strong> Checks certificate status on every TLS handshake. If the OCSP server drops, HTTPS handshakes fail or browsers 'soft-fail' and ignore it.</li>
+            <li><strong>The Reality:</strong> In real production networks, most clients skip revocation verification entirely.</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h3 style="color: var(--apple-green);">The step-ca Paradigm: Passive Revocation</h3>
+          <ul class="clean-list">
+            <li><strong>Short-Lived by Default:</strong> TLS certificates are issued for 16 to 24 hours only.</li>
+            <li><strong>Automated Background Renewal:</strong> Connected clients renew credentials halfway through their lifetime without service restarts.</li>
+            <li><strong>Clean Revocation:</strong> If a host is terminated or a key is leaked, renewals cease. The credential self-invalidates within hours.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: Code Walkthrough -->
+    <div class="slide" data-notes="Walk through server.js. Emphasize that Node.js reads localhost.crt and localhost.key. Notice how clean it is to run HTTPS when the CA handles certificates.">
+      <h2>Application Consumption: Node.js HTTPS</h2>
+      <p class="lead">Wiring <code>localhost.crt</code> and <code>localhost.key</code> directly into an Express server.</p>
+
+      <pre class="term"><code><span class="cmd">const</span> https = <span class="param">require</span>(<span class="param">'https'</span>);
+<span class="cmd">const</span> fs = <span class="param">require</span>(<span class="param">'fs'</span>);
+<span class="cmd">const</span> express = <span class="param">require</span>(<span class="param">'express'</span>);
+
+<span class="cmd">const</span> app = <span class="param">express</span>();
+app.<span class="param">get</span>(<span class="param">'/'</span>, (req, res) => res.<span class="param">send</span>(<span class="param">'Secure Hello World!'</span>));
+
+<span class="comment">// Load X.509 credentials issued by step-ca</span>
+<span class="cmd">const</span> options = {
+  key: fs.<span class="param">readFileSync</span>(<span class="param">'localhost.key'</span>),
+  cert: fs.<span class="param">readFileSync</span>(<span class="param">'localhost.crt'</span>)
+};
+
+<span class="comment">// Bind encrypted TLS socket on port 3000</span>
+https.<span class="param">createServer</span>(options, app).<span class="param">listen</span>(3000, () => {
+  console.<span class="param">log</span>(<span class="param">'HTTPS server running at https://localhost:3000'</span>);
+});</code></pre>
+    </div>
+
+    <!-- Slide 7: Live Demo -->
+    <div class="slide" data-notes="Switch to terminal for the live demo. 1. step ca health -> ok. 2. inspect localhost.crt. 3. curl localhost:3000 with the root certificate. It proves the whole chain from CA to Node works.">
+      <h2>Live System Verification</h2>
+      <p class="lead">Verifying the complete cryptographic trust chain across live local endpoints.</p>
+
+      <div class="grid-2">
+        <div class="box">
+          <h3>1. CA Health Check (:9000)</h3>
+          <pre class="term"><code><span class="cmd">step</span> ca health
+<span class="comment"># Output: ok</span></code></pre>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 8px;">Confirms the local CA daemon is healthy and accepting signing requests.</p>
+        </div>
+
+        <div class="box">
+          <h3>2. Inspect Issued Certificate</h3>
+          <pre class="term"><code><span class="cmd">step</span> certificate inspect localhost.crt --short
+<span class="comment"># Issuer: CN=Smallstep Intermediate CA</span>
+<span class="comment"># SAN: DNS:localhost | Validity: 24h</span></code></pre>
+        </div>
+
+        <div class="box" style="grid-column: span 2;">
+          <h3>3. Verify TLS Handshake Against Root CA</h3>
+          <pre class="term"><code><span class="cmd">curl.exe</span> --ssl-no-revoke --cacert <span class="param">"$env:USERPROFILE\.step\certs\root_ca.crt"</span> https://localhost:3000/
+<span class="comment"># Output: Secure Hello World!</span></code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 8: Enterprise Value -->
+    <div class="slide" data-notes="Summarize the business case: zero outages, zero-trust network encryption, compliance satisfaction, and identity-bound SSH access.">
+      <h2>Enterprise Impact & Zero-Trust ROI</h2>
+      <p class="lead">How automated PKI translates into operational stability and compliance readiness.</p>
+
+      <div class="grid-2">
+        <div class="box">
+          <h3>1. Outage Elimination</h3>
+          <p style="font-size: 0.94rem; color: var(--text-secondary); line-height: 1.5;">
+            Continuous, automated renewal eliminates human error and the recurring operational risk of forgotten multi-year certificate expirations.
+          </p>
+        </div>
+
+        <div class="box">
+          <h3>2. Zero-Trust mTLS</h3>
+          <p style="font-size: 0.94rem; color: var(--text-secondary); line-height: 1.5;">
+            Guarantees mutual authentication and end-to-end encryption across internal microservices, preventing lateral movement during network breaches.
+          </p>
+        </div>
+
+        <div class="box">
+          <h3>3. Centralized Revocation</h3>
+          <p style="font-size: 0.94rem; color: var(--text-secondary); line-height: 1.5;">
+            Ties access to active SSO identities (Google, Okta). Employee departures automatically terminate SSH access across all infrastructure.
+          </p>
+        </div>
+
+        <div class="box">
+          <h3>4. Regulatory Compliance</h3>
+          <p style="font-size: 0.94rem; color: var(--text-secondary); line-height: 1.5;">
+            Satisfies strict encryption-in-transit requirements for SOC 2, HIPAA, and PCI-DSS across all internal service channels.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 9: Conclusion -->
+    <div class="slide" data-notes="Wrap up cleanly. Reiterate that PKI does not have to be difficult. Automated tooling makes security the default path of least resistance. Open for questions.">
+      <h1>Automating Security by Default</h1>
+      <h2>Next Steps & Technical Discussion</h2>
+      <p class="lead">When encryption is automated, security becomes the path of least resistance.</p>
+
+      <div class="box" style="margin-top: 20px; padding: 28px;">
+        <h2>Key Takeaway</h2>
+        <p style="font-size: 1.05rem; line-height: 1.6; color: #f5f5f7;">
+          <strong>step-ca</strong> brings the operational simplicity and automated velocity of Let's Encrypt into private enterprise networks, replacing brittle scripts with verifiable zero-trust architecture.
+        </p>
+        <div style="margin-top: 28px; display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 14px; font-weight: 500; color: var(--apple-blue);">Presentation Complete &bull; Questions Welcome</span>
+          <span class="indicator"><span class="indicator-dot"></span> All Systems Operational</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Speaker Notes Drawer -->
+  <div id="notes">
+    <div id="notes-label">Speaker Notes (Press 'S' to Toggle)</div>
+    <div id="notes-body">Loading...</div>
+  </div>
+
+  <!-- Bottom Floating Capsule Bar -->
+  <div id="nav">
+    <div style="font-weight: 500; font-size: 13px;">
+      step-ca &bull; <span id="counter">1 / 9</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button class="btn" onclick="toggleNotes()">Speaker Notes (S)</button>
+      <button class="btn" onclick="prev()">❮ Prev</button>
+      <button class="btn" onclick="next()">Next ❯</button>
+      <button class="btn" onclick="toggleFullscreen()">Fullscreen (F)</button>
+    </div>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const counter = document.getElementById('counter');
+    const notes = document.getElementById('notes');
+    const notesBody = document.getElementById('notes-body');
+    let index = 0;
+
+    function render(i) {
+      slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+      counter.textContent = `${i + 1} / ${slides.length}`;
+      notesBody.textContent = slides[i].getAttribute('data-notes') || 'No notes.';
+      index = i;
+    }
+
+    function next() {
+      if (index < slides.length - 1) render(index + 1);
+    }
+    function prev() {
+      if (index > 0) render(index - 1);
+    }
+    function toggleNotes() {
+      notes.style.display = notes.style.display === 'block' ? 'none' : 'block';
+    }
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') next();
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') prev();
+      else if (e.key.toLowerCase() === 's') toggleNotes();
+      else if (e.key.toLowerCase() === 'f') toggleFullscreen();
+    });
+
+    render(0);
+  </script>
+</body>
+</html>

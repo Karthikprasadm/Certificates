@@ -1,0 +1,230 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tooltipIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.96) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) translateY(0);
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.table-row-hover:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Button & Direct Manipulation Physics */
+button:not(:disabled), .btn-press {
+  transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), background-color 140ms ease, opacity 140ms ease, border-color 140ms ease;
+}
+button:not(:disabled):active, .btn-press:active {
+  transform: scale(0.97) !important;
+}
+
+/* Pulse animation for amber auto-renewal window */
+@keyframes pulseAmber {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(255, 214, 10, 0.7));
+  }
+  50% {
+    opacity: 0.65;
+    filter: drop-shadow(0 0 2px rgba(255, 214, 10, 0.3));
+  }
+}
+
+.pulse-amber-bar {
+  animation: pulseAmber 2s ease-in-out infinite;
+}
+
+/* Telemetry Health Beacon */
+@keyframes beaconBreathe {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(48, 209, 88, 0.6);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 6px rgba(48, 209, 88, 0);
+  }
+}
+
+.beacon-pulse {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #30d158;
+  animation: beaconBreathe 2s infinite ease-in-out;
+}
+
+.beacon-offline {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #ff453a;
+  box-shadow: 0 0 6px rgba(255, 69, 58, 0.8);
+}
+
+/* Companion Link Styling */
+.companion-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #a1a1a6;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 140ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.companion-link:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+.companion-link:active {
+  transform: scale(0.97);
+}
+
+/* Code Snippet Drawer Styling */
+.code-tab-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #86868b;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+.code-tab-btn.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+.code-block-pre {
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #e5e5ea;
+  overflow-x: auto;
+  position: relative;
+  margin: 0;
+}
+
+/* cmdk Command Palette Styling */
+[cmdk-overlay] {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 1000;
+}
+
+[cmdk-dialog] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: 580px;
+  background: rgba(26, 26, 30, 0.95);
+  backdrop-filter: blur(40px) saturate(190%);
+  -webkit-backdrop-filter: blur(40px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 18px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.85);
+  overflow: hidden;
+  color: #ffffff;
+  font-family: inherit;
+  z-index: 1001;
+  animation: modalIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[cmdk-input] {
+  width: 100%;
+  padding: 18px 22px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 15px;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+[cmdk-list] {
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+[cmdk-group-heading] {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #86868b;
+  padding: 8px 12px 4px;
+}
+
+[cmdk-item] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  color: #d1d1d6;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  user-select: none;
+}
+
+[cmdk-item][data-selected='true'] {
+  background: #0a84ff;
+  color: #ffffff;
+}
+
+[cmdk-empty] {
+  font-size: 13px;
+  color: #86868b;
+  text-align: center;
+  padding: 28px;
+}

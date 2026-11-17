@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>step-ca Interactive PKI Playground & Visualizer</title>
+  <style>
+    :root {
+      --color-primary: #0a84ff;
+      --color-primary-hover: #0071e3;
+      --color-secondary: #5ac8fa;
+      --color-accent: #30d158;
+      --color-warning: #ffd60a;
+      --color-error: #ff453a;
+      --color-bg: #000000;
+      --color-card: rgba(28, 28, 32, 0.72);
+      --color-card-border: rgba(255, 255, 255, 0.08);
+      --color-card-top-border: rgba(255, 255, 255, 0.16);
+      --color-text-primary: #ffffff;
+      --color-text-secondary: #a1a1a6;
+      --color-text-muted: #86868b;
+      --color-text-mono: #e5e5ea;
+      
+      --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      --font-mono: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-pill: 9999px;
+      
+      --shadow-low: 0 2px 8px rgba(0, 0, 0, 0.35);
+      --shadow-med: 0 14px 34px rgba(0, 0, 0, 0.55);
+      --shadow-high: 0 28px 60px rgba(0, 0, 0, 0.7);
+      
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+      --duration-micro: 80ms;
+      --duration-normal: 150ms;
+      --duration-macro: 300ms;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text-primary);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background: radial-gradient(circle at 50% 0%, rgba(10, 132, 255, 0.12) 0%, rgba(0, 0, 0, 0) 65%), var(--color-bg);
+      padding: 40px 32px;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    /* Translucent Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--color-card);
+      backdrop-filter: blur(35px) saturate(190%);
+      -webkit-backdrop-filter: blur(35px) saturate(190%);
+      border: 1px solid var(--color-card-border);
+      border-top: 1px solid var(--color-card-top-border);
+      border-radius: var(--radius-lg);
+      padding: 20px 32px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-med);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0a84ff 0%, #0056b3 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 19px;
+      box-shadow: 0 4px 14px rgba(10, 132, 255, 0.45);
+    }
+
+    .brand-title {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .brand-meta {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      font-family: var(--font-mono);
+      margin-top: 3px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-accent);
+      background: rgba(48, 209, 88, 0.12);
+      border: 1px solid rgba(48, 209, 88, 0.3);
+      padding: 5px 14px;
+      border-radius: var(--radius-pill);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--color-accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(48, 209, 88, 0.8);
+    }
+
+    /* Segmented Navigation */
+    .capsule-nav {
+      display: flex;
+      background: rgba(0, 0, 0, 0.45);
+      padding: 4px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      gap: 4px;
+    }
+
+    .capsule-btn {
+      background: transparent;
+      color: var(--color-text-secondary);
+      border: none;
+      padding: 8px 20px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      transition: background var(--duration-normal), color var(--duration-normal), transform var(--duration-micro) ease-out;
+    }
+
+    .capsule-btn.active {
+      background: var(--color-primary);
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 2px 10px rgba(10, 132, 255, 0.45);
+    }
+
+    .capsule-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      background: rgba(10, 132, 255, 0.2);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(10, 132, 255, 0.4);
+      color: #64d2ff;
+      padding: 14px 24px;
+      border-radius: var(--radius-md);
+      font-size: 13.5px;
+      font-weight: 600;
+      box-shadow: var(--shadow-med);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 1000;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Section Grid */
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    .glass-card {
+      background: var(--color-card);
+      backdrop-filter: blur(35px) saturate(190%);
+      -webkit-backdrop-filter: blur(35px) saturate(190%);
+      border: 1px solid var(--color-card-border);
+      border-top: 1px solid var(--color-card-top-border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-med);
+      margin-bottom: 28px;
+      color: var(--color-text-primary);
+    }
+
+    .card-title {
+      font-family: var(--font-heading);
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+
+    .card-desc {
+      color: var(--color-text-secondary);
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    /* Chain Explorer Layout */
+    .chain-container {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 28px;
+    }
+
+    .tree-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .tree-node {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid var(--color-card-border);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform var(--duration-micro) ease-out;
+      position: relative;
+    }
+
+    .tree-node:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .tree-node.active {
+      background: rgba(10, 132, 255, 0.12);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 16px rgba(10, 132, 255, 0.25);
+    }
+
+    .tree-node:active {
+      transform: scale(0.98);
+    }
+
+    .node-level {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+
+    .tree-node.active .node-level {
+      color: var(--color-secondary);
+    }
+
+    .node-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #ffffff;
+      font-family: var(--font-heading);
+    }
+
+    .node-file {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+    }
+
+    .node-detail-panel {
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid var(--color-card-border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 12px 18px;
+      font-size: 13.5px;
+      line-height: 1.6;
+    }
+
+    .detail-label {
+      color: var(--color-text-muted);
+      font-weight: 600;
+    }
+
+    .detail-value {
+      color: #ffffff;
+      word-break: break-all;
+    }
+
+    .detail-mono {
+      font-family: var(--font-mono);
+      color: var(--color-text-mono);
+      font-size: 12.5px;
+    }
+
+    /* Interactive Form Controls */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #d1d1d6;
+    }
+
+    input, select {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      color: #ffffff;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.3);
+    }
+
+    /* Terminal Box */
+    .terminal-box {
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 24px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      position: relative;
+    }
+
+    .terminal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-muted);
+    }
+
+    .terminal-code {
+      color: #64d2ff;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    /* Buttons */
+    .btn-row {
+      display: flex;
+      gap: 14px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: var(--radius-pill);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: background 0.15s, transform var(--duration-micro) ease-out;
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(10, 132, 255, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    /* Revocation Visualizer */
+    .revocation-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+
+    .revocation-card {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid var(--color-card-border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+    }
+
+    .rev-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .timeline-bar {
+      height: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-pill);
+      margin: 18px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timeline-fill {
+      height: 100%;
+      border-radius: var(--radius-pill);
+      transition: width 0.4s ease;
+    }
+
+    /* Hub Links */
+    .hub-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .hub-card {
+      background: rgba(28, 28, 32, 0.6);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid var(--color-card-border);
+      border-top: 1px solid var(--color-card-top-border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      transition: transform var(--duration-micro) ease-out, border-color 0.15s, background 0.15s;
+    }
+
+    .hub-card:hover {
+      background: rgba(36, 36, 42, 0.8);
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+    }
+
+    .hub-badge {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .hub-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .hub-desc {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      line-height: 1.45;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand-group">
+        <div class="brand-icon">S</div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <h1 class="brand-title">step-ca PKI Developer Playground</h1>
+            <span class="status-pill">
+              <span class="status-dot"></span>
+              Authority Online (:9000)
+            </span>
+          </div>
+          <div class="brand-meta">Fingerprint: 84a033e84196f73bd593fad7a63e509e57fd982f02084359c4e8c5c864efc27d</div>
+        </div>
+      </div>
+
+      <nav class="capsule-nav">
+        <button class="capsule-btn active" onclick="switchTab('chain')">Chain Explorer</button>
+        <button class="capsule-btn" onclick="switchTab('cli')">CLI Generator</button>
+        <button class="capsule-btn" onclick="switchTab('revocation')">Passive Revocation</button>
+        <button class="capsule-btn" onclick="switchTab('hub')">Surface Hub</button>
+      </nav>
+    </header>
+
+    <!-- TAB 1: CHAIN EXPLORER -->
+    <div id="tab-chain" class="view-section active">
+      <div class="glass-card">
+        <h2 class="card-title">X.509 Cryptographic Trust Chain</h2>
+        <p class="card-desc">Inspect how client trust flows hierarchically from the offline Root CA down to short-lived TLS leaf certificates issued for local services.</p>
+
+        <div class="chain-container">
+          <div class="tree-list">
+            <div class="tree-node active" onclick="selectNode('root', this)">
+              <div class="node-level">Level 0 • Anchor</div>
+              <div class="node-name">Smallstep Root CA</div>
+              <div class="node-file">root_ca.crt • Self-Signed (10 Yrs)</div>
+            </div>
+            <div class="tree-node" onclick="selectNode('intermediate', this)">
+              <div class="node-level">Level 1 • Signer</div>
+              <div class="node-name">Smallstep Intermediate CA</div>
+              <div class="node-file">intermediate_ca.crt • CA:TRUE</div>
+            </div>
+            <div class="tree-node" onclick="selectNode('leaf1', this)">
+              <div class="node-level">Level 2 • End Entity</div>
+              <div class="node-name">localhost</div>
+              <div class="node-file">localhost.crt • 24h Zero-Trust TTL</div>
+            </div>
+            <div class="tree-node" onclick="selectNode('leaf2', this)">
+              <div class="node-level">Level 2 • End Entity</div>
+              <div class="node-name">api.local</div>
+              <div class="node-file">api.crt • 24h Zero-Trust TTL</div>
+            </div>
+          </div>
+
+          <div class="node-detail-panel" id="node-details">
+            <!-- Dynamic Node Details Populated via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: CLI GENERATOR -->
+    <div id="tab-cli" class="view-section">
+      <div class="glass-card">
+        <h2 class="card-title">Interactive CLI Command Generator</h2>
+        <p class="card-desc">Configure issuance parameters to generate the exact <code>step ca certificate</code> command and simulate instant cryptographic issuance.</p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Domain Name / SAN</label>
+            <input type="text" id="cli-domain" value="gateway.internal" oninput="updateCliCommand()">
+          </div>
+          <div class="form-group">
+            <label>Authority Provisioner</label>
+            <select id="cli-provisioner" onchange="updateCliCommand()">
+              <option value="mariano@smallstep.com">mariano@smallstep.com (JWK)</option>
+              <option value="mike@smallstep.com">mike@smallstep.com (JWK)</option>
+              <option value="decade">decade (10 Year Max)</option>
+              <option value="90days">90days (90 Day Max)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Certificate Lifetime (TTL)</label>
+            <select id="cli-duration" onchange="updateCliCommand()">
+              <option value="24h">24 Hours (Zero-Trust Best Practice)</option>
+              <option value="48h">48 Hours</option>
+              <option value="720h">30 Days</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="terminal-box">
+          <div class="terminal-header">
+            <span>Generated Terminal Command</span>
+            <span style="color: var(--color-primary);">Bash / PowerShell</span>
+          </div>
+          <div class="terminal-code" id="generated-command">
+            step ca certificate gateway.internal gateway_internal.crt gateway_internal.key --provisioner mariano@smallstep.com
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="copyCliCommand()">Copy Command</button>
+          <button class="btn btn-secondary" onclick="simulateIssuance()">Simulate CA Issuance</button>
+        </div>
+
+        <div id="simulation-output" style="display: none; margin-top: 24px; padding: 20px; background: rgba(0, 0, 0, 0.6); border-radius: var(--radius-md); border: 1px solid rgba(48, 209, 88, 0.3); font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; color: #a1a1a6;">
+          <span style="color: var(--color-accent);">✔ Successfully received signed certificate from https://localhost:9000</span><br>
+          <span style="color: #ffffff;">Certificate:</span> <span id="sim-cert-file">gateway_internal.crt</span><br>
+          <span style="color: #ffffff;">Private Key:</span> <span id="sim-key-file">gateway_internal.key</span><br>
+          <span style="color: #ffffff;">Algorithm:</span> ECDSA-SHA256 (curve P-256)<br>
+          <span style="color: #ffffff;">Validity:</span> 24 hours (passive revocation active)
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: PASSIVE REVOCATION -->
+    <div id="tab-revocation" class="view-section">
+      <div class="glass-card">
+        <h2 class="card-title">Passive Revocation Architecture</h2>
+        <p class="card-desc">Smallstep eliminates heavy Certificate Revocation Lists (CRLs) and fragile OCSP stapling by issuing ephemeral 24-hour certificates renewed automatically via background daemon.</p>
+
+        <div class="revocation-grid">
+          <div class="revocation-card">
+            <div class="rev-title" style="color: var(--color-accent);">
+              <span>⚡</span> Passive Revocation (Modern Zero-Trust)
+            </div>
+            <p style="font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 14px;">
+              Certificates naturally expire in 24 hours. Compromised certificates become useless within hours without network roundtrips.
+            </p>
+            <div class="timeline-bar">
+              <div class="timeline-fill" style="width: 66%; background: var(--color-accent);"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-muted); font-family: var(--font-mono);">
+              <span>Issued (T=0)</span>
+              <span style="color: var(--color-accent);">Auto-Renew (T=16h)</span>
+              <span>Expire (T=24h)</span>
+            </div>
+            <ul style="margin-top: 18px; font-size: 13px; color: #d1d1d6; list-style: inside disc; line-height: 1.8;">
+              <li>No single point of failure (no CRL/OCSP responders)</li>
+              <li>Privacy-preserving: CA doesn't see TLS handshakes</li>
+              <li>Automated mTLS renewal via <code>step ca renew</code></li>
+            </ul>
+          </div>
+
+          <div class="revocation-card">
+            <div class="rev-title" style="color: var(--color-warning);">
+              <span>⚠️</span> Active Revocation (Legacy PKI)
+            </div>
+            <p style="font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 14px;">
+              Certificates live for 1 to 5 years. Checking revocation requires querying public CRL downloads (megabytes) or OCSP servers on every connection.
+            </p>
+            <div class="timeline-bar">
+              <div class="timeline-fill" style="width: 100%; background: var(--color-warning);"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-muted); font-family: var(--font-mono);">
+              <span>Issued (Year 0)</span>
+              <span>Stale CRL Cache</span>
+              <span>Expire (Year 1+)</span>
+            </div>
+            <ul style="margin-top: 18px; font-size: 13px; color: #d1d1d6; list-style: inside disc; line-height: 1.8;">
+              <li>High latency on TLS handshake</li>
+              <li>Fails open if OCSP responder is down (insecure)</li>
+              <li>Fails closed if OCSP responder times out (outage)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: SURFACE HUB -->
+    <div id="tab-hub" class="view-section">
+      <div class="glass-card">
+        <h2 class="card-title">Project Surfaces & Documentation Hub</h2>
+        <p class="card-desc">Direct access to every connected component in your Smallstep PKI and design architecture.</p>
+
+        <div class="hub-grid">
+          <a href="http://localhost:5173" target="_blank" class="hub-card">
+            <div class="hub-badge" style="color: var(--color-primary);">Web Dashboard</div>
+            <div class="hub-title">Astryx React App</div>
+            <div class="hub-desc">Live certificate inventory, simulator tab, and authority health monitor.</div>
+          </a>
+
+          <a href="presentation.html" target="_blank" class="hub-card">
+            <div class="hub-badge" style="color: var(--color-secondary);">Slide Deck</div>
+            <div class="hub-title">Interactive Presentation</div>
+            <div class="hub-desc">9-slide Apple-grade presentation with presenter notes (S) & fullscreen (F).</div>
+          </a>
+
+          <a href="cheatsheet.html" target="_blank" class="hub-card">
+            <div class="hub-badge" style="color: var(--color-accent);">Desk Reference</div>
+            <div class="hub-title">Printable Cheat Sheet</div>
+            <div class="hub-desc">1-page high-density reference sheet for tomorrow's talk (Ctrl+P ready).</div>
+          </a>
+
+          <a href="https://localhost:3000" target="_blank" class="hub-card">
+            <div class="hub-badge" style="color: var(--color-warning);">Node.js App</div>
+            <div class="hub-title">Express HTTPS Server</div>
+            <div class="hub-desc">Serving Secure Hello World! over TLS using generated localhost.crt.</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Element -->
+  <div id="toast">Command copied to clipboard</div>
+
+  <script>
+    const NODE_DATA = {
+      root: {
+        subject: 'CN = Smallstep Root CA',
+        issuer: 'CN = Smallstep Root CA (Self-Signed)',
+        validity: '10 Years (2026 – 2036)',
+        algo: 'ECDSA-SHA256 (curve P-256)',
+        san: 'None (Root Authority)',
+        fingerprint: '84a033e84196f73bd593fad7a63e509e57fd982f02084359c4e8c5c864efc27d',
+        path: 'examples/pki/config/ca.json'
+      },
+      intermediate: {
+        subject: 'CN = Smallstep Intermediate CA',
+        issuer: 'CN = Smallstep Root CA',
+        validity: '10 Years (Constrained by Root)',
+        algo: 'ECDSA-SHA256 (curve P-256)',
+        san: 'None (Signing Authority)',
+        fingerprint: '52b189ff411a03f848a6efb624190c4d8721ad7e199e43b1239561cf237a8b12',
+        path: 'examples/pki/certs/intermediate_ca.crt'
+      },
+      leaf1: {
+        subject: 'CN = localhost',
+        issuer: 'CN = Smallstep Intermediate CA',
+        validity: '24 Hours (Zero-Trust Standard)',
+        algo: 'ECDSA-SHA256 (curve P-256)',
+        san: 'DNS:localhost, IP:127.0.0.1',
+        fingerprint: 'a89c4239e144a69d273a033bca710526e03f0b09489260cd420455bf02b9e691',
+        path: 'd:/certificates/localhost.crt'
+      },
+      leaf2: {
+        subject: 'CN = api.local',
+        issuer: 'CN = Smallstep Intermediate CA',
+        validity: '24 Hours (Zero-Trust Standard)',
+        algo: 'ECDSA-SHA256 (curve P-256)',
+        san: 'DNS:api.local',
+        fingerprint: '3b092f694e2298bc7a61d15bf3a72810ce420188b20d39e3194a38753f20b852',
+        path: 'd:/certificates/api.crt'
+      }
+    };
+
+    function selectNode(key, el) {
+      document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('active'));
+      el.classList.add('active');
+      
+      const d = NODE_DATA[key];
+      const panel = document.getElementById('node-details');
+      panel.innerHTML = `
+        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; color: #ffffff; margin-bottom: 16px;">
+          ${d.subject}
+        </h3>
+        <div class="detail-grid">
+          <div class="detail-label">Issuer:</div>
+          <div class="detail-value">${d.issuer}</div>
+          
+          <div class="detail-label">Validity:</div>
+          <div class="detail-value" style="color: var(--color-accent); font-weight: 600;">${d.validity}</div>
+          
+          <div class="detail-label">Algorithm:</div>
+          <div class="detail-value detail-mono">
+            ${d.algo}
+            <span style="display: block; font-size: 11.5px; color: #a1a1a6; font-family: var(--font-body); margin-top: 4px; line-height: 1.45;">
+              Modern encryption standard (used by Apple & Cloudflare). Connects 3x faster than old RSA with bulletproof security.
+            </span>
+          </div>
+          
+          <div class="detail-label">SANs:</div>
+          <div class="detail-value detail-mono">${d.san}</div>
+          
+          <div class="detail-label">Fingerprint:</div>
+          <div class="detail-value detail-mono" style="font-size: 11.5px; color: #64d2ff;">${d.fingerprint}</div>
+          
+          <div class="detail-label">File Path:</div>
+          <div class="detail-value detail-mono" style="font-size: 11.5px;">${d.path}</div>
+        </div>
+      `;
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.capsule-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+    }
+
+    function updateCliCommand() {
+      const domain = document.getElementById('cli-domain').value.trim() || 'gateway.internal';
+      const cleanFile = domain.replace(/\\./g, '_');
+      const prov = document.getElementById('cli-provisioner').value;
+      const cmd = `step ca certificate ${domain} ${cleanFile}.crt ${cleanFile}.key --provisioner ${prov}`;
+      document.getElementById('generated-command').textContent = cmd;
+    }
+
+    function copyCliCommand() {
+      const text = document.getElementById('generated-command').textContent.trim();
+      navigator.clipboard.writeText(text);
+      showToast('Command copied to clipboard');
+    }
+
+    function simulateIssuance() {
+      const domain = document.getElementById('cli-domain').value.trim() || 'gateway.internal';
+      const cleanFile = domain.replace(/\\./g, '_');
+      document.getElementById('sim-cert-file').textContent = `${cleanFile}.crt`;
+      document.getElementById('sim-key-file').textContent = `${cleanFile}.key`;
+      
+      const out = document.getElementById('simulation-output');
+      out.style.display = 'block';
+      showToast(`Generated ${cleanFile}.crt!`);
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // Initialize default node
+    selectNode('root', document.querySelector('.tree-node'));
+  </script>
+</body>
+</html>

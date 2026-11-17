@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>step-ca Presentation Cheat Sheet &bull; 1-Page Desk Reference</title>
+  <style>
+    :root {
+      --primary: #09090b;
+      --accent: #0369a1;
+      --text: #18181b;
+      --text-muted: #3f3f46;
+      --border: #d4d4d8;
+      --bg-box: #f8fafc;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: #f4f4f5;
+      padding: 24px;
+      line-height: 1.45;
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 880px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 28px 32px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+    }
+
+    header {
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    h1 {
+      font-size: 21px;
+      color: var(--primary);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section-box {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-box);
+      padding: 14px 16px;
+    }
+
+    .section-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: 10px;
+      border-bottom: 1px solid #e4e4e7;
+      padding-bottom: 5px;
+    }
+
+    ul.bullets {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    ul.bullets li {
+      margin-bottom: 6px;
+      position: relative;
+      padding-left: 14px;
+      font-size: 12.5px;
+    }
+    ul.bullets li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: #f4f4f5;
+      color: #09090b;
+      padding: 1px 5px;
+      border-radius: 3px;
+      border: 1px solid #e4e4e7;
+    }
+
+    .cmd-box {
+      background: #09090b;
+      color: #fafafa;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-top: 4px;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .cmd-box .cmd { color: #38bdf8; font-weight: 600; }
+    .cmd-box .cmt { color: #a1a1aa; }
+
+    .qa-item {
+      margin-bottom: 10px;
+    }
+    .qa-q { font-weight: 700; color: #09090b; margin-bottom: 2px; font-size: 12.5px; }
+    .qa-a { color: #27272a; font-size: 12px; }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 8mm;
+      }
+      body {
+        background: none;
+        padding: 0;
+        font-size: 12px;
+      }
+      .page {
+        border: none;
+        padding: 0;
+        box-shadow: none;
+        max-width: 100%;
+      }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page">
+    <header>
+      <div>
+        <h1>step-ca Presentation Cheat Sheet</h1>
+        <p style="color: var(--text-muted); font-size: 12.5px;">Private PKI, Automated TLS, and Zero-Trust Architecture</p>
+      </div>
+      <div>
+        <span class="badge">Presenter Desk Reference</span>
+      </div>
+    </header>
+
+    <div class="section-box" style="margin-bottom: 16px;">
+      <div class="section-title">30-Second Opening Pitch</div>
+      <p style="font-size: 13px; color: #18181b;">
+        "Public web security is solved with Let's Encrypt. But inside private company networks (between microservices, databases, and developers), traffic is often unencrypted or relies on brittle 10-year OpenSSL certs that cause catastrophic outages when they expire. <strong>step-ca</strong> is an open-source, automated private Certificate Authority that issues short-lived, verifiable TLS and SSH certificates on demand."
+      </p>
+    </div>
+
+    <div class="grid-2">
+      <div class="section-box">
+        <div class="section-title">Slide-by-Slide Timing Guide (7 Mins)</div>
+        <ul class="bullets">
+          <li><strong>Slide 1 (0:00 to 0:45) Introduction:</strong> Introduce the problem of internal encryption outages versus public Let's Encrypt.</li>
+          <li><strong>Slide 2 (0:45 to 1:45) The Problem:</strong> OpenSSL complexity, unmanaged 5-year cert timebombs, and red browser warnings.</li>
+          <li><strong>Slide 3 (1:45 to 2:45) What is step-ca:</strong> Private CA server, ACME server (works with Certbot/Caddy), and SSH Authority.</li>
+          <li><strong>Slide 4 (2:45 to 3:45) Architecture:</strong> Clients to Provisioners (SSO/ACME) to Policy/Templates to Signing Engine (KMS/Vault).</li>
+          <li><strong>Slide 5 (3:45 to 4:45) Passive Revocation:</strong> 24-hour certs that auto-renew eliminate broken CRLs and slow OCSP responders.</li>
+          <li><strong>Slide 6 (4:45 to 5:15) Code Integration:</strong> Walk through <code>server.js</code> showing how Node loads <code>localhost.crt</code>.</li>
+          <li><strong>Slide 7 (5:15 to 6:15) Live Demo:</strong> Execute commands (see right box).</li>
+          <li><strong>Slide 8 and 9 (6:15 to 7:00) Business Value:</strong> Zero outages, microservice mTLS, and compliance (SOC 2/HIPAA).</li>
+        </ul>
+      </div>
+
+      <div class="section-box">
+        <div class="section-title">60-Second Live Terminal Demo</div>
+        
+        <p style="font-size: 12.5px;"><strong>1. Verify CA Server Health (:9000)</strong></p>
+        <div class="cmd-box">
+          <span class="cmd">step</span> ca health<br/>
+          <span class="cmt"># Expected output: ok</span>
+        </div>
+
+        <p style="font-size: 12.5px;"><strong>2. Issue a New Certificate Instantly</strong></p>
+        <div class="cmd-box">
+          <span class="cmd">step</span> ca certificate demo.local demo.crt demo.key<br/>
+          <span class="cmt"># Password: password</span>
+        </div>
+
+        <p style="font-size: 12.5px;"><strong>3. Inspect the Certificate Specs</strong></p>
+        <div class="cmd-box">
+          <span class="cmd">step</span> certificate inspect localhost.crt --short<br/>
+          <span class="cmt"># Show: Issuer (Smallstep Intermediate), Validity (24h)</span>
+        </div>
+
+        <p style="font-size: 12.5px;"><strong>4. Test Live Node.js HTTPS App (:3000)</strong></p>
+        <div class="cmd-box">
+          <span class="cmd">curl.exe</span> --ssl-no-revoke --cacert "$env:USERPROFILE\.step\certs\root_ca.crt" https://localhost:3000/<br/>
+          <span class="cmt"># Expected output: Secure Hello World!</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="section-box">
+        <div class="section-title">Top 3 Questions Evaluators Ask</div>
+        
+        <div class="qa-item">
+          <div class="qa-q">Q: "Why not just use regular Let's Encrypt?"</div>
+          <div class="qa-a"><strong>A:</strong> Let's Encrypt only validates public domains. It refuses to issue certs for private networks, internal IPs (<code>10.0.0.5</code>), or <code>localhost</code>.</div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">Q: "What happens if a private key is leaked?"</div>
+          <div class="qa-a"><strong>A:</strong> Certs only last 24 hours. We revoke it or stop renewals, and the leaked key expires automatically within hours (Passive Revocation).</div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">Q: "How is the root key protected in production?"</div>
+          <div class="qa-a"><strong>A:</strong> In production, keys live inside Cloud KMS (AWS/GCP/Azure), Hardware Security Modules (HSM/YubiKey), or HashiCorp Vault, never plaintext on disk.</div>
+        </div>
+      </div>
+
+      <div class="section-box">
+        <div class="section-title">Emergency Fallback Guide</div>
+        <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+          <tr style="border-bottom: 1px solid #d4d4d8;">
+            <td style="font-weight: 700; padding: 5px 0;">Symptom</td>
+            <td style="font-weight: 700; padding: 5px 0;">Immediate Resolution</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #e4e4e7;">
+            <td style="padding: 5px 0; color: #be123c; font-weight: 600;">step-ca offline</td>
+            <td style="padding: 5px 0;"><code>.\bin\step-ca.exe examples/pki/config/ca.json</code></td>
+          </tr>
+          <tr style="border-bottom: 1px solid #e4e4e7;">
+            <td style="padding: 5px 0; color: #be123c; font-weight: 600;">Node app offline</td>
+            <td style="padding: 5px 0;"><code>node server.js</code></td>
+          </tr>
+          <tr style="border-bottom: 1px solid #e4e4e7;">
+            <td style="padding: 5px 0; color: #be123c; font-weight: 600;">Cert expired</td>
+            <td style="padding: 5px 0;"><code>step ca certificate localhost localhost.crt localhost.key --provisioner mariano@smallstep.com --force</code></td>
+          </tr>
+          <tr>
+            <td style="padding: 5px 0; color: #be123c; font-weight: 600;">Browser warning</td>
+            <td style="padding: 5px 0;">Type <code>thisisunsafe</code> on the Chrome error screen.</td>
+          </tr>
+        </table>
+
+        <div style="margin-top: 12px; text-align: right;" class="no-print">
+          <button onclick="window.print()" style="background: var(--accent); color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">Print / Save as PDF (Ctrl+P)</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

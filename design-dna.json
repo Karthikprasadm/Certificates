@@ -1,0 +1,230 @@
+{
+  "$schema": "https://design-dna.dev/v1/schema.json",
+  "meta": {
+    "name": "Smallstep PKI & Apple-Astryx Design DNA",
+    "description": "Engineered, authoritative cryptographic infrastructure design profile marrying Apple Pro hardware aesthetics, visionOS acrylic glass, and high-performance developer ergonomics.",
+    "source_references": [
+      "https://smallstep.com/docs/step-ca",
+      "Apple WWDC Designing Fluid Interfaces",
+      "Apple WWDC The Details of UI Typography",
+      "Astryx Design System"
+    ],
+    "created_at": "2026-11-16T22:36:00+05:30"
+  },
+  "design_system": {
+    "color": {
+      "palette_type": "monochrome-cyber-minimal",
+      "primary": { "hex": "#0a84ff", "role": "System Blue / Primary Actions & Interactive Links" },
+      "secondary": { "hex": "#5ac8fa", "role": "Teal-Cyan / Secondary Command Highlights" },
+      "accent": { "hex": "#30d158", "role": "Vivid Green / Authority Active Status Indicators" },
+      "neutral": {
+        "scale": [
+          "#000000",
+          "#0d0d11",
+          "#1c1c20",
+          "#2c2c32",
+          "#525258",
+          "#86868b",
+          "#a1a1a6",
+          "#d1d1d6",
+          "#f5f5f7",
+          "#ffffff"
+        ],
+        "usage": "Pure #000000 deep OLED background; #1c1c20 for translucent acrylic card bodies; #86868b for metadata; #f5f5f7 and #ffffff for crisp high-contrast headings and values"
+      },
+      "semantic": {
+        "success": "#30d158",
+        "warning": "#ffd60a",
+        "error": "#ff453a",
+        "info": "#0a84ff"
+      },
+      "surface": {
+        "background": "#000000",
+        "card": "rgba(28, 28, 32, 0.72)",
+        "elevated": "rgba(42, 42, 48, 0.85)"
+      },
+      "contrast_strategy": "WCAG AA compliant (minimum 4.5:1 text contrast ratio against dark glass)"
+    },
+    "typography": {
+      "type_scale": {
+        "display": { "size": "clamp(2rem, 5vw, 3.5rem)", "weight": 700, "line_height": 1.05, "tracking": "-0.035em" },
+        "heading_1": { "size": "1.75rem", "weight": 700, "line_height": 1.2, "tracking": "-0.025em" },
+        "heading_2": { "size": "1.35rem", "weight": 600, "line_height": 1.3, "tracking": "-0.02em" },
+        "heading_3": { "size": "1.15rem", "weight": 600, "line_height": 1.35, "tracking": "-0.015em" },
+        "body": { "size": "0.9375rem", "weight": 400, "line_height": 1.5, "tracking": "-0.01em" },
+        "body_small": { "size": "0.8125rem", "weight": 400, "line_height": 1.45, "tracking": "0" },
+        "caption": { "size": "0.75rem", "weight": 600, "line_height": 1.3, "tracking": "0.06em" },
+        "overline": { "size": "0.6875rem", "weight": 700, "line_height": 1.2, "tracking": "0.08em" }
+      },
+      "font_families": {
+        "heading": "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif",
+        "body": "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif",
+        "mono": "'SF Mono', Menlo, Monaco, Consolas, 'Liberation Mono', monospace"
+      },
+      "font_style_notes": "Optical sizing with negative tracking on headings; monospace reserved for hashes, CLI commands, SANs, and PEM certificates"
+    },
+    "spacing": {
+      "base_unit": "4px",
+      "scale": ["4px", "8px", "12px", "16px", "20px", "24px", "32px", "40px", "48px", "64px"],
+      "content_density": "comfortable",
+      "section_rhythm": "32px section gaps with 28px to 38px internal card padding"
+    },
+    "layout": {
+      "grid_system": "CSS Grid + Flexbox auto-fit adaptive",
+      "max_content_width": "1200px",
+      "columns": 12,
+      "gutter": "24px",
+      "breakpoints": {
+        "sm": "640px",
+        "md": "768px",
+        "lg": "1024px",
+        "xl": "1280px"
+      },
+      "alignment_tendency": "Left-aligned content with centered capsule tab navigations"
+    },
+    "shape": {
+      "border_radius": {
+        "small": "8px",
+        "medium": "12px",
+        "large": "18px",
+        "pill": "9999px"
+      },
+      "border_usage": "1px translucent outer border (rgba(255, 255, 255, 0.08)) with 1px top specular highlight (rgba(255, 255, 255, 0.16))",
+      "divider_style": "1px solid rgba(255, 255, 255, 0.06)"
+    },
+    "elevation": {
+      "shadow_style": "Deep ambient diffuse shadows imitating physical light diffusion",
+      "levels": {
+        "low": "0 2px 8px rgba(0, 0, 0, 0.3)",
+        "medium": "0 14px 32px rgba(0, 0, 0, 0.5)",
+        "high": "0 28px 56px rgba(0, 0, 0, 0.65)"
+      },
+      "depth_cues": "Chamfered top specular highlight creates physical depth over pure black OLED backgrounds"
+    },
+    "iconography": {
+      "style": "Minimal geometric SVG & mono glyphs",
+      "stroke_weight": "2px",
+      "size_scale": ["14px", "16px", "20px", "24px"],
+      "preferred_set": "SF Symbols style SVGs"
+    },
+    "motion": {
+      "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+      "duration_scale": {
+        "micro": "80ms",
+        "normal": "150ms",
+        "macro": "300ms"
+      },
+      "entrance_pattern": "Fade-in with -4px translation",
+      "exit_pattern": "Immediate opacity fade",
+      "philosophy": "Zero latency feedback on pointer-down (:active { transform: scale(0.96) })"
+    },
+    "components": {
+      "button_style": "Capsule pills with instant pointer-down scale feedback and radiant glows",
+      "input_style": "Dark translucent recessed inputs with crisp glowing focus rings",
+      "card_style": "Chamfered frosted glass panels with specular top highlights and backdrop blur",
+      "navigation_pattern": "Apple segmented capsule floating pill",
+      "modal_style": "Centered blurred scrim with spring settle",
+      "list_style": "Row-based table with hairline dividers and hover highlight"
+    }
+  },
+  "design_style": {
+    "aesthetic": {
+      "mood": "Engineered, authoritative, precision security instrumentation",
+      "visual_metaphor": "Apple Pro hardware meets mission-critical PKI terminal",
+      "era_influence": "Modern macOS Sequoia & visionOS glass aesthetics",
+      "genre": "Developer Infrastructure / Cryptography Dashboard",
+      "personality_traits": ["Rigorous", "Fluid", "Subtle", "High-Fidelity"],
+      "adjectives": ["Tactile", "Frosted", "Restrained", "Specular"]
+    },
+    "visual_language": {
+      "complexity": "Medium (optimized for dense operational clarity)",
+      "ornamentation": "Minimal (specular edges and neon status indicators only)",
+      "whitespace_usage": "Generous interior padding with tight informational clusters",
+      "visual_weight_distribution": "Anchored by dark surfaces, punctuated by vivid status dots",
+      "focal_strategy": "Primary CTA highlighted in vibrant system blue (#0a84ff)",
+      "contrast_level": "High contrast WCAG AA text over deep dark surfaces",
+      "texture_usage": "Subtle radial ambient spotlight over pure black"
+    },
+    "composition": {
+      "hierarchy_method": "Typographic scale + opacity levels + weight",
+      "balance_type": "Asymmetric balanced metrics with centered layout",
+      "flow_direction": "Top-to-bottom scan with horizontal capsule tab filtering",
+      "grouping_strategy": "Card-enclosed semantic functional zones",
+      "negative_space_role": "Eliminates visual fatigue during active monitoring"
+    },
+    "imagery": {
+      "photo_treatment": "None (pure vector and typographic iconography)",
+      "illustration_style": "Geometric abstract cryptographic emblems",
+      "graphic_elements": ["Segmented capsule tabs", "Pill badges", "Specular hairlines"],
+      "pattern_usage": "Radial gradient ambient wash",
+      "image_shape": "Rounded rectangles (squircle geometry)"
+    },
+    "interaction_feel": {
+      "feedback_style": "Immediate pointer-down spring compression",
+      "hover_behavior": "Gentle opacity shift (0.15s ease)",
+      "transition_personality": "Critically damped spring (no rubbery cartoon bounce)",
+      "loading_style": "Pulsing ambient status beacon",
+      "microinteraction_density": "High (every button, tab, and copy action provides instant visual cue)"
+    },
+    "brand_voice_in_ui": {
+      "tone": "Direct, technical, and dependable",
+      "formality": "High engineering grade",
+      "cta_style": "Imperative ('Simulate & Add to Inventory', 'Inspect Command')",
+      "empty_state_approach": "Action-oriented with instant sample generation",
+      "error_tone": "Explicit with recovery path"
+    }
+  },
+  "visual_effects": {
+    "overview": {
+      "effect_intensity": "Subtle-to-Medium",
+      "performance_tier": "lightweight",
+      "fallback_strategy": "Solid dark background when backdrop-filter is unsupported",
+      "primary_technology": "CSS Backdrop Filters & Radial Spotlights"
+    },
+    "background_effects": {
+      "type": "Radial Ambient Glow",
+      "description": "Soft blue light cone cast downward from top center",
+      "technology": "CSS radial-gradient",
+      "params": {
+        "color_palette": ["rgba(10, 132, 255, 0.12)", "rgba(0, 0, 0, 0)"],
+        "speed": "Static",
+        "density": "Single overhead spotlight",
+        "opacity": 0.12,
+        "blend_mode": "screen"
+      }
+    },
+    "particle_systems": { "enabled": false },
+    "3d_elements": { "enabled": false },
+    "shader_effects": { "enabled": false },
+    "scroll_effects": {
+      "parallax": { "enabled": false },
+      "scroll_triggered_animations": { "enabled": false },
+      "scroll_morphing": { "enabled": false }
+    },
+    "text_effects": {
+      "type": "Optical Display Sizing",
+      "description": "Negative tracking scaling inversely with font size",
+      "technology": "CSS letter-spacing + font-smoothing",
+      "params": {
+        "split_strategy": "None",
+        "animation_per_unit": "None",
+        "stagger": "0s",
+        "effect_style": "Subtle antialiased text crispness"
+      }
+    },
+    "cursor_effects": { "enabled": false },
+    "image_effects": { "enabled": false },
+    "glassmorphism_neumorphism": {
+      "enabled": true,
+      "style": "Apple Frosted Acrylic",
+      "params": {
+        "blur_radius": "35px",
+        "transparency": 0.72,
+        "border_treatment": "1px solid rgba(255, 255, 255, 0.08) with 1px top highlight (0.16)",
+        "shadow_type": "Deep diffused ambient blur",
+        "light_source_angle": "Overhead (90deg)"
+      }
+    },
+    "canvas_drawings": { "enabled": false }
+  }
+}
